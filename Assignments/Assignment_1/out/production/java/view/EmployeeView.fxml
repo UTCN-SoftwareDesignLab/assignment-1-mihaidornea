@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <HBox>
+            <padding>
+                <Insets left="10" right="10"/>
+            </padding>
+            <TableView fx:id="tableView"/>
+        </HBox>
+    </center>
+    <left>
+        <VBox>
+            <padding>
+                <Insets right="10" left="10" />
+            </padding>
+            <Button text="Add Customer" fx:id="addCustomerButton" alignment="CENTER" onAction="#addCustomer"/>
+            <Button text="Update Cusotmer" fx:id="updateCustomerButton" alignment="CENTER" onAction="#updateCustomer"/>
+            <Button text="Delete Customer" fx:id="deleteCustomerButton" alignment="CENTER" onAction="#deleteCustomer"/>
+            <Button text="Find Customer" fx:id="findCustomerButton" alignment="CENTER" onAction="#findCustomer"/>
+            <Button text="Process Utilities" fx:id="processUtilitiesButton" alignment="CENTER" onAction="#processUtilities"/>
+            <Button text="Create Account" fx:id="createAccountButton" alignment="CENTER" onAction="#createAccount"/>
+            <Button text="Delete Account" fx:id="deleteAccountButton" alignment="CENTER" onAction="#deleteAccount"/>
+            <Button text="Transfer Money" fx:id="transferMoneyButton" alignment="CENTER" onAction="#transferMoney"/>
+        </VBox>
+    </left>
+</BorderPane>
+
+

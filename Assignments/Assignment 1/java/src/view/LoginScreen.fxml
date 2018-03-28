@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+        <?import java.lang.*?>
+        <?import java.util.*?>
+        <?import javafx.scene.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.scene.layout.*?>
+
+        <?import javafx.geometry.Insets?>
+        <?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<center>
+    <VBox alignment="CENTER" spacing="5">
+        <padding>
+            <Insets right="10" left="10" />
+        </padding>
+        <Label text="Username:" alignment="CENTER"/>
+        <TextField alignment="CENTER" fx:id="usernameTextField" promptText="Username"/>
+        <Label text="Password:" alignment="CENTER"/>
+        <PasswordField alignment="CENTER" fx:id="passwordTextField" promptText="Password"/>
+        <Button alignment="CENTER" text="Login" fx:id="loginButton" onAction="#login"/>
+    </VBox>
+</center>
+</BorderPane>
+
+

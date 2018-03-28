@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.AdministratorViewController">
+    <center>
+        <VBox>
+            <padding>
+                <Insets right="10" left="10"/>
+            </padding>
+            <TableView fx:id="administratorTableView"/>
+        </VBox>
+    </center>
+    <right>
+        <VBox>
+            <padding>
+                <Insets left="10" right="10"/>
+            </padding>
+            <Button text="Create User" fx:id="createUserButton" alignment="CENTER" />
+            <Button text="Update User" fx:id="updateUserButton" alignment="CENTER"/>
+            <Button text="Delete User" fx:id="deleteUserButton" alignment="CENTER"/>
+            <Button text="Find User" fx:id="findUserButton" alignment="CENTER"/>
+            <Button text="Generate User Report" fx:id="generateUserReportButton" alignment="CENTER"/>
+        </VBox>
+    </right>
+</BorderPane>
+
+
