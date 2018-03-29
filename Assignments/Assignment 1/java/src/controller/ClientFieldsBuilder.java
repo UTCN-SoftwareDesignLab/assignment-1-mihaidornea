@@ -14,7 +14,7 @@ public class ClientFieldsBuilder{
     }
 
     public ClientFieldsBuilder setAddress(String address){
-        clientFields.setName(address);
+        clientFields.setAddress(address);
         return this;
     }
 

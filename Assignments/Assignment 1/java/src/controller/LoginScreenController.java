@@ -1,24 +1,14 @@
 package controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sun.nio.sctp.Association;
-import com.sun.tools.javac.Main;
 import componentFactory.ComponentFactory;
-import javafx.application.Application;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import model.Role;
 import model.User;
@@ -26,7 +16,8 @@ import model.validation.Notification;
 import service.user.AuthenticationService;
 
 import javax.naming.AuthenticationException;
-import javax.swing.*;
+
+import static database.Constants.Roles.ADMINISTRATOR;
 
 public class LoginScreenController {
 
@@ -43,12 +34,17 @@ public class LoginScreenController {
     @FXML
     TextField passwordTextField;
 
-
-
-    public LoginScreenController(){
-        init();
-        this.componentFactory = ComponentFactory.instance();
+    public LoginScreenController(MainController mainController) throws IOException{
+        this.main = mainController;
+        this.componentFactory = mainController.getComponentFactory();
         this.authenticationService = componentFactory.getAuthenticationService();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginScreen.fxml"));
+        loader.setController(this);
+        Parent root = loader.load();
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Bank Application");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
     }
 
     @FXML
@@ -60,11 +56,9 @@ public class LoginScreenController {
         try {
             loginNotification = authenticationService.login(username, password);
             userRole = authenticationService.getUserRole(username, password);
-            main.setUserRole(userRole);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
-
 
         if (loginNotification != null) {
             if (loginNotification.hasErrors()) {
@@ -80,14 +74,12 @@ public class LoginScreenController {
                 alert.show();
             }
         }
-        main.openMainWindow();
+        if (userRole.getRole() == ADMINISTRATOR)
+            main.openMainWindow(false);
+        else main.openMainWindow(true);
         Stage stage = (Stage) loginButton.getScene().getWindow();
         stage.close();
 
-    }
-
-    private void init(){
-        this.main = MainController.initialise();
     }
 }
 

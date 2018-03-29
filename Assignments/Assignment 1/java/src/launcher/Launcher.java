@@ -21,11 +21,7 @@ import static database.Constants.Roles.ADMINISTRATOR;
 
 public class Launcher extends Application {
 
-    private static UserRepository userRepository;
-    private static RightsRolesRepository rightsRolesRepository;
-    private static AuthenticationService authenticationService;
     private static ComponentFactory componentFactory;
-
 
 
     public static void main (String[] args) {
@@ -35,12 +31,6 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/LoginScreen.fxml"));
-        LoginScreenController loginScreenController = new LoginScreenController();
-        loader.setController(loginScreenController);
-        Parent root = loader.load();
-        primaryStage.setTitle("Bank Application");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
+        MainController mainController = new MainController(componentFactory);
     }
 }

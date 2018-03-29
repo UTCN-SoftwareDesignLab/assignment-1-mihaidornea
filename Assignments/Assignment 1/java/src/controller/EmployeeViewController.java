@@ -3,12 +3,18 @@ package controller;
 
 import componentFactory.ComponentFactory;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import model.Client;
 import model.builder.ClientBuilder;
 import service.client.ClientService;
 import service.client.ClientServiceImpl;
+
+import java.io.IOException;
 
 public class EmployeeViewController {
 
@@ -42,14 +48,17 @@ public class EmployeeViewController {
     private Button transferMoneyButton;
 
 
-    public EmployeeViewController(){
-        init();
-        this.componentFactory = ComponentFactory.instance();
+    public EmployeeViewController(MainController mainController) throws IOException {
+        this.main = mainController;
+        this.componentFactory = mainController.getComponentFactory();
         this.clientService = new ClientServiceImpl(componentFactory.getClientRepository());
-    }
-
-    private void init(){
-        this.main = MainController.initialise();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeView.fxml"));
+        loader.setController(this);
+        Parent root = loader.load();
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Bank Application");
+        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.show();
     }
 
     @FXML
@@ -81,6 +90,9 @@ public class EmployeeViewController {
                                 .setPersonalNumericalCode(results.getPersonalCode())
                                 .setAddress(results.getAddress())
                                 .build();
+
+                        System.out.println(client.getAddress() + client.getIdentityNumber());
+
                         clientService.save(client);
                     } catch (Exception e) {
                         e.printStackTrace();

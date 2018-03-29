@@ -20,54 +20,30 @@ import static database.Constants.Roles.ADMINISTRATOR;
 public class MainController {
 
 
-    private final ComponentFactory componentFactory;
     private Role userRole;
-    private static MainController instance;
+    private final ComponentFactory componentFactory;
 
-    private MainController() {
-        this.componentFactory = ComponentFactory.instance();
+    private AdministratorViewController administratorViewController;
+    private EmployeeViewController employeeViewController;
+
+    public MainController(ComponentFactory componentFactory) throws IOException{
+        this.componentFactory = componentFactory;
+        LoginScreenController loginScreenController = new LoginScreenController(this);
     }
 
-    public static MainController initialise(){
-        if (instance != null) {
-            return instance;
-        } else {
-            instance = new MainController();
-        }
-        return  instance;
+    public void openMainWindow(boolean administrator) throws IOException{
+        if (administrator == true)
+            administratorViewController = new AdministratorViewController(this);
+        else
+            employeeViewController = new EmployeeViewController(this);
     }
 
+   public ComponentFactory getComponentFactory(){
+        return this.componentFactory;
+   }
 
     public void setUserRole(Role role){
         this.userRole = role;
-        System.out.println(role.toString());
+        System.out.println(role.getRole());
     }
-
-    public void openMainWindow() {
-        try {
-           if (userRole.getRole() == ADMINISTRATOR) {
-               FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdministratorView.fxml"));
-               AdministratorViewController administratorViewController = new AdministratorViewController();
-               loader.setController(administratorViewController);
-               Parent root = loader.load();
-               Stage primaryStage = new Stage();
-               primaryStage.setTitle("Bank Application");
-               primaryStage.setScene(new Scene(root, 300, 275));
-               primaryStage.show();
-           } else {
-               FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/EmployeeView.fxml"));
-               EmployeeViewController employeeViewController = new EmployeeViewController();
-               loader.setController(employeeViewController);
-               Parent root = loader.load();
-               Stage primaryStage = new Stage();
-               primaryStage.setTitle("Bank Application");
-               primaryStage.setScene(new Scene(root, 300, 275));
-               primaryStage.show();
-           }
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-
 }
