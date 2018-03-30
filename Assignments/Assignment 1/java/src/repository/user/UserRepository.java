@@ -16,6 +16,14 @@ public interface UserRepository {
 
     boolean update(User user);
 
+    User findById(Long id);
+
+    User findByUsername(String username);
+
+    void addActivity(Long id, String activity);
+
+    void removeUser(User user);
+
     void removeAll();
 
 }

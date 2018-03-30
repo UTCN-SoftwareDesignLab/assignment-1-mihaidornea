@@ -31,6 +31,11 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
+    public void removeAccount(Account account) {
+        repository.removeAccount(account);
+    }
+
+    @Override
     public boolean transferMoney(Long accountId1, Long accountId2, Long moneyAmount) throws EntityNotFoundException {
         Account account1 = repository.findById(accountId1);
         Account account2 = repository.findById(accountId2);
@@ -39,6 +44,11 @@ public class AccountServiceImpl implements AccountService{
         account2.setAmountOfMoney(account2.getAmountOfMoney()+moneyAmount);
 
         return repository.update(account1)&&repository.update(account2);
+    }
+
+    @Override
+    public Account findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException{
+        return repository.findByIdentificationNumber(identificationNumber);
     }
 
     @Override

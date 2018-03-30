@@ -6,6 +6,7 @@ public class AccountFields {
 
     private Long clientId;
     private Long identificationNumber;
+    private Long secondIdentificationNumber;
     private String Type;
     private Long money;
     private Date date;
@@ -24,6 +25,10 @@ public class AccountFields {
 
     public Long getClientId() {
         return clientId;
+    }
+
+    public Long getSecondIdentificationNumber() {
+        return secondIdentificationNumber;
     }
 
     public Long getMoney() {
@@ -48,5 +53,9 @@ public class AccountFields {
 
     public void setMoney(Long money) {
         this.money = money;
+    }
+
+    public void setSecondIdentificationNumber(Long secondIdentificationNumber) {
+        this.secondIdentificationNumber = secondIdentificationNumber;
     }
 }

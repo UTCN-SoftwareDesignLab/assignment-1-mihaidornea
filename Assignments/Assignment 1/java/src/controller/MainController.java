@@ -16,11 +16,13 @@ import service.user.AuthenticationServiceMySQL;
 import java.io.IOException;
 
 import static database.Constants.Roles.ADMINISTRATOR;
+import static database.Constants.Roles.EMPLOYEE;
 
 public class MainController {
 
 
     private Role userRole;
+    private Long userId;
     private final ComponentFactory componentFactory;
 
     private AdministratorViewController administratorViewController;
@@ -31,11 +33,11 @@ public class MainController {
         LoginScreenController loginScreenController = new LoginScreenController(this);
     }
 
-    public void openMainWindow(boolean administrator) throws IOException{
-        if (administrator == true)
+    public void openMainWindow() throws IOException{
+        if (userRole.getRole().equals(ADMINISTRATOR))
             administratorViewController = new AdministratorViewController(this);
-        else
-            employeeViewController = new EmployeeViewController(this);
+        else if (userRole.getRole().equals(EMPLOYEE))
+            employeeViewController = new EmployeeViewController(this, userId);
     }
 
    public ComponentFactory getComponentFactory(){
@@ -44,6 +46,9 @@ public class MainController {
 
     public void setUserRole(Role role){
         this.userRole = role;
-        System.out.println(role.getRole());
+    }
+
+    public void setUserId(Long id){
+        this.userId = id;
     }
 }

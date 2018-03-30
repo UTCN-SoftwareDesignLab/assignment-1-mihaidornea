@@ -1,11 +1,14 @@
 package repository.user;
 
+import javafx.stage.Stage;
 import model.User;
 import model.builder.UserBuilder;
 import model.validation.Notification;
+import repository.EntityNotFoundException;
 import repository.security.RightsRolesRepository;
 
 import javax.naming.AuthenticationException;
+import javax.swing.plaf.nimbus.State;
 import java.awt.*;
 import java.security.MessageDigest;
 import java.sql.*;
@@ -39,6 +42,7 @@ public class UserRepositoryMySQL implements UserRepository {
                 User user = new UserBuilder()
                         .setUsername(userResultSet.getString("username"))
                         .setPassword(userResultSet.getString("password"))
+                        .setId(userResultSet.getLong("id"))
                         .setRoles(rightsRolesRepository.findRolesForUser(userResultSet.getLong("id")))
                         .build();
                 findByUsernameAndPasswordNotification.setResult(user);
@@ -89,7 +93,7 @@ public class UserRepositoryMySQL implements UserRepository {
             PreparedStatement updateStatement = connection
                     .prepareStatement("UPDATE user SET username = ?, password = ? WHERE id = ?");
             updateStatement.setString(1, user.getUsername());
-            updateStatement.setString(2, user.getPassword());
+            updateStatement.setString(2, encodePassword(user.getPassword()));
             updateStatement.setLong(3, user.getId());
             updateStatement.executeUpdate();
             return true;
@@ -99,6 +103,37 @@ public class UserRepositoryMySQL implements UserRepository {
         }
     }
 
+    @Override
+    public User findById(Long id){
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM user WHERE id=" + id;
+            ResultSet rs = statement.executeQuery(sql);
+
+            if (rs.next()) {
+                return getUserFromResultSet(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public User findByUsername(String username){
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM user WHERE username=" + username;
+            ResultSet rs = statement.executeQuery(sql);
+
+            if (rs.next()){
+                return getUserFromResultSet(rs);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public void removeAll() {
@@ -110,6 +145,33 @@ public class UserRepositoryMySQL implements UserRepository {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void removeUser(User user){
+        try {
+            PreparedStatement updateStatement = connection
+                    .prepareStatement("DELETE FROM USER WHERE id = ?");
+            updateStatement.setLong(1, user.getId());
+            updateStatement.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void addActivity(Long id, String activity) {
+        try {
+            PreparedStatement insertUserStamement = connection
+                    .prepareStatement("INSERT INTO user_report values(null, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            insertUserStamement.setLong(1, id);
+            insertUserStamement.setString(2, activity);
+            insertUserStamement.setDate(3, new Date(new java.util.Date().getTime()));
+            insertUserStamement.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
 
     private String encodePassword(String password){
         try{
@@ -128,4 +190,12 @@ public class UserRepositoryMySQL implements UserRepository {
             throw new RuntimeException(ex);
         }
     }
+
+    private User getUserFromResultSet(ResultSet rs) throws SQLException{
+        return new UserBuilder()
+                .setUsername(rs.getString("username"))
+                .setId(rs.getLong("id"))
+                .build();
+    }
+
 }

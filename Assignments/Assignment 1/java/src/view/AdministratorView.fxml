@@ -22,11 +22,11 @@
             <padding>
                 <Insets left="10" right="10"/>
             </padding>
-            <Button text="Create User" fx:id="createUserButton" alignment="CENTER" />
-            <Button text="Update User" fx:id="updateUserButton" alignment="CENTER"/>
-            <Button text="Delete User" fx:id="deleteUserButton" alignment="CENTER"/>
-            <Button text="Find User" fx:id="findUserButton" alignment="CENTER"/>
-            <Button text="Generate User Report" fx:id="generateUserReportButton" alignment="CENTER"/>
+            <Button text="Create User" fx:id="createUserButton" alignment="CENTER" onAction="#createUser"/>
+            <Button text="Update User" fx:id="updateUserButton" alignment="CENTER" onAction="#updateUser"/>
+            <Button text="Delete User" fx:id="deleteUserButton" alignment="CENTER" onAction="#deleteUser"/>
+            <Button text="Find User" fx:id="findUserButton" alignment="CENTER" onAction="#findUser"/>
+            <Button text="Generate User Report" fx:id="generateUserReportButton" alignment="CENTER" onAction="#generateUserReport"/>
         </VBox>
     </right>
 </BorderPane>

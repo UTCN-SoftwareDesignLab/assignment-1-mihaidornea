@@ -12,6 +12,8 @@ public interface AuthenticationService {
 
     Role getUserRole(String username, String password) throws AuthenticationException;
 
+    Long getUserId(String username, String password)throws AuthenticationException;
+
     boolean logout (User user);
 
 }

@@ -24,7 +24,8 @@ public class LoginScreenController {
     private MainController main;
     private ComponentFactory componentFactory;
     private AuthenticationService authenticationService;
-    private static Role userRole;
+    private Role userRole;
+    private Long userId;
     @FXML
     Button loginButton;
 
@@ -56,6 +57,8 @@ public class LoginScreenController {
         try {
             loginNotification = authenticationService.login(username, password);
             userRole = authenticationService.getUserRole(username, password);
+            userId = authenticationService.getUserId(username, password);
+
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -74,12 +77,13 @@ public class LoginScreenController {
                 alert.show();
             }
         }
-        if (userRole.getRole() == ADMINISTRATOR)
-            main.openMainWindow(false);
-        else main.openMainWindow(true);
+
+        main.setUserRole(userRole);
+        main.openMainWindow();
+        main.setUserId(userId);
+
         Stage stage = (Stage) loginButton.getScene().getWindow();
         stage.close();
-
     }
 }
 

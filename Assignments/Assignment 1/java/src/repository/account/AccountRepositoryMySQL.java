@@ -5,6 +5,7 @@ import model.User;
 import model.builder.AccountBuilder;
 import repository.EntityNotFoundException;
 
+import javax.xml.transform.Result;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,24 @@ public class AccountRepositoryMySQL implements AccountRepository {
     }
 
     @Override
+    public Account findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException{
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM account WHERE identificationNr=" + identificationNumber;
+            ResultSet rs = statement.executeQuery(sql);
+
+            if (rs.next()) {
+                return getAccountFromResultSet(rs);
+            } else {
+                throw new EntityNotFoundException(identificationNumber, Account.class.getSimpleName());
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public boolean save(Account account) {
         try {
             PreparedStatement insertStatement = connection
@@ -92,6 +111,18 @@ public class AccountRepositoryMySQL implements AccountRepository {
         } catch (SQLException e){
             e.printStackTrace();
             return false;
+        }
+    }
+
+    @Override
+    public void removeAccount(Account account) {
+        try{
+            PreparedStatement insertStatement = connection
+                    .prepareStatement("DELETE * FROM account WHERE id = ?");;
+            insertStatement.setLong(1, account.getId());
+            insertStatement.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
         }
     }
 

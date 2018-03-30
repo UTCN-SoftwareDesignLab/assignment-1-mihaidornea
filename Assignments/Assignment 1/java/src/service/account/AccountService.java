@@ -16,7 +16,11 @@ public interface AccountService {
 
     boolean transferMoney(Long accountId1, Long accountId2, Long moneyAmount) throws EntityNotFoundException;
 
-    boolean payUtilityBill(long moneyAmount, Account account);
+    void removeAccount(Account account);
+
+    Account findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException;
+
+    boolean payUtilityBill(long moneyAmount, Account account2);
 
 
 }

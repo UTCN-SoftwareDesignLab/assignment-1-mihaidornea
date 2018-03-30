@@ -38,6 +38,12 @@ public class AuthenticationServiceMySQL implements AuthenticationService{
         return role;
     }
 
+    @Override
+    public Long getUserId(String username, String password) throws AuthenticationException {
+        User user = userRepository.findByUsernameAndPassword(username, encodePassword(password)).getResult();
+        return user.getId();
+    }
+
     private String encodePassword(String password){
      try{
          MessageDigest digest = MessageDigest.getInstance("SHA-256");

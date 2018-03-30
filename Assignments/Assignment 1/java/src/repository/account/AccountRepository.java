@@ -18,4 +18,7 @@ public interface AccountRepository {
 
     void removeAll();
 
+    Account findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException;
+
+    void removeAccount(Account account);
 }
