@@ -2,11 +2,14 @@ package repository.client;
 
 import model.Client;
 import model.builder.ClientBuilder;
+import model.validation.Notification;
 import repository.EntityNotFoundException;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static database.Constants.Tables.CLIENT;
 
 public class ClientRepositoryMySQL implements ClientRepository {
 
@@ -21,7 +24,7 @@ public class ClientRepositoryMySQL implements ClientRepository {
         List<Client> clients = new ArrayList<>();
         try{
             Statement statement = connection.createStatement();
-            String sql = "SELECT * FORM client";
+            String sql = "SELECT * FROM client";
             ResultSet rs = statement.executeQuery(sql);
 
             while (rs.next()){
@@ -35,16 +38,20 @@ public class ClientRepositoryMySQL implements ClientRepository {
     }
 
     @Override
-    public Client findById(Long id) throws EntityNotFoundException {
+    public Notification<Client> findById(Long id) throws EntityNotFoundException {
+        Notification<Client> notification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
             String sql = "SELECT * FROM client WHERE id=" + id;
             ResultSet rs = statement.executeQuery(sql);
 
             if (rs.next()){
-                return getClientFromResultSet(rs);
+                Client client = getClientFromResultSet(rs);
+                notification.setResult(client);
+                return notification;
             } else {
-                throw new EntityNotFoundException(id, Client.class.getSimpleName());
+                notification.addError("Invalid ID!");
+                return notification;
             }
 
         } catch (SQLException e){
@@ -55,16 +62,20 @@ public class ClientRepositoryMySQL implements ClientRepository {
     }
 
     @Override
-    public Client findByPersonalCode(Long personalCode) throws EntityNotFoundException {
+    public Notification<Client> findByPersonalCode(Long personalCode) throws EntityNotFoundException {
+        Notification<Client> notification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
             String sql = "SELECT * FROM client WHERE personalCode=" + personalCode;
             ResultSet rs = statement.executeQuery(sql);
 
             if (rs.next()){
-                return getClientFromResultSet(rs);
+                Client client = getClientFromResultSet(rs);
+                notification.setResult(client);
+                return notification;
             } else {
-                throw new EntityNotFoundException(personalCode, Client.class.getSimpleName());
+                notification.addError("Invalid Personal Code");
+                return notification;
             }
 
         } catch (SQLException e){
@@ -137,7 +148,7 @@ public class ClientRepositoryMySQL implements ClientRepository {
     public void removeAll() {
         try {
             PreparedStatement updateStatement = connection
-                    .prepareStatement("DELETE * FROM client");
+                    .prepareStatement("DELETE FROM client WHERE id >= 0");
             updateStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

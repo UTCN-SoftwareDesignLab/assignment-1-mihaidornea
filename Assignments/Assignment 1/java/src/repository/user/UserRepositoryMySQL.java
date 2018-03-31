@@ -1,7 +1,10 @@
 package repository.user;
 
 import javafx.stage.Stage;
+import model.Activity;
+import model.Report;
 import model.User;
+import model.builder.ActivityBuilder;
 import model.builder.UserBuilder;
 import model.validation.Notification;
 import repository.EntityNotFoundException;
@@ -12,6 +15,7 @@ import javax.swing.plaf.nimbus.State;
 import java.awt.*;
 import java.security.MessageDigest;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static database.Constants.Tables.USER;
@@ -28,7 +32,19 @@ public class UserRepositoryMySQL implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        return null;
+        List<User> users = new ArrayList<>();
+        try{
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM user";
+            ResultSet rs = statement.executeQuery(sql);
+
+            while(rs.next()){
+                users.add(getUserFromResultSet(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return users;
     }
 
     @Override
@@ -36,7 +52,8 @@ public class UserRepositoryMySQL implements UserRepository {
         Notification<User> findByUsernameAndPasswordNotification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
-            String fetchUserSql = "SELECT * FROM `" + USER + "`WHERE `username`=\'" + username + "\' AND `password`=\'" + password + "\'";
+            String fetchUserSql = "SELECT * FROM `" + USER + "` WHERE `username`=\'" + username + "\' AND `password`=\'" + encodePassword(password) + "\'";
+            System.out.println(fetchUserSql);
             ResultSet userResultSet = statement.executeQuery(fetchUserSql);
             if (userResultSet.next()) {
                 User user = new UserBuilder()
@@ -104,14 +121,20 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
-    public User findById(Long id){
+    public Notification<User> findById(Long id){
+        Notification<User> findByIdNotification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
             String sql = "SELECT * FROM user WHERE id=" + id;
             ResultSet rs = statement.executeQuery(sql);
 
             if (rs.next()) {
-                return getUserFromResultSet(rs);
+                User user = getUserFromResultSet(rs);
+                findByIdNotification.setResult(user);
+                return findByIdNotification;
+            } else {
+                findByIdNotification.addError("Invalid id!");
+                return findByIdNotification;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,14 +143,20 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
-    public User findByUsername(String username){
+    public Notification<User> findByUsername(String username){
+        Notification<User> findNotification = new Notification<>();
         try {
             Statement statement = connection.createStatement();
-            String sql = "SELECT * FROM user WHERE username=" + username;
+            String sql = "SELECT * FROM `" + USER + "` WHERE `username`=\'" + username +"\'";
             ResultSet rs = statement.executeQuery(sql);
 
             if (rs.next()){
-                return getUserFromResultSet(rs);
+                User user = getUserFromResultSet(rs);
+                findNotification.setResult(user);
+                return findNotification;
+            } else {
+                findNotification.addError("Invalid username");
+                return findNotification;
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -159,6 +188,17 @@ public class UserRepositoryMySQL implements UserRepository {
     }
 
     @Override
+    public void removeAllActivities(){
+        try{
+            Statement statement = connection.createStatement();
+            String sql = "DELETE FROM user_report WHERE id >= 0";
+            statement.executeUpdate(sql);
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void addActivity(Long id, String activity) {
         try {
             PreparedStatement insertUserStamement = connection
@@ -172,6 +212,24 @@ public class UserRepositoryMySQL implements UserRepository {
         }
     }
 
+    @Override
+    public Report getActivities(Long id, Date date) {
+        Report report = new Report();
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "SELECT * FROM bank.user_report WHERE user_id =" + id + " AND date >" + date;
+            ResultSet rs = statement.executeQuery(sql);
+
+            while(rs.next()){
+                Activity activity = getActivityFromResultSet(rs);
+                report.addActivities(activity);
+                System.out.println(activity.getAction());
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return report;
+    }
 
     private String encodePassword(String password){
         try{
@@ -196,6 +254,16 @@ public class UserRepositoryMySQL implements UserRepository {
                 .setUsername(rs.getString("username"))
                 .setId(rs.getLong("id"))
                 .build();
+    }
+
+    private Activity getActivityFromResultSet(ResultSet rs) throws SQLException{
+        Activity activity = new ActivityBuilder()
+                                    .setAction(rs.getString("action"))
+                                    .setUserId(rs.getLong("user_id"))
+                                    .setDate(rs.getDate("date"))
+                                    .build();
+        System.out.println(activity.getAction());
+        return activity;
     }
 
 }

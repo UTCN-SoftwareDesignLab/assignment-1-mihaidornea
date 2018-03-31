@@ -79,8 +79,8 @@ public class LoginScreenController {
         }
 
         main.setUserRole(userRole);
-        main.openMainWindow();
         main.setUserId(userId);
+        main.openMainWindow();
 
         Stage stage = (Stage) loginButton.getScene().getWindow();
         stage.close();

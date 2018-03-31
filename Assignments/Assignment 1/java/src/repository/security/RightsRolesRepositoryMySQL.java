@@ -136,4 +136,28 @@ public class RightsRolesRepositoryMySQL implements RightsRolesRepository {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void removeAll(){
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "DELETE FROM role WHERE id >= 0";
+            statement.executeUpdate(sql);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void removeAllRights(){
+        try {
+            Statement statement = connection.createStatement();
+            String sql = "DELETE FROM " + RIGHT  + " WHERE id >= 0";
+
+            statement.executeUpdate(sql);
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
 }

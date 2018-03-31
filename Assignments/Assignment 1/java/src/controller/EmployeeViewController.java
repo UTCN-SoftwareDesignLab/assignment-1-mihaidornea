@@ -2,8 +2,6 @@ package controller;
 
 
 import componentFactory.ComponentFactory;
-import javafx.beans.Observable;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,7 +14,8 @@ import model.Client;
 import model.User;
 import model.builder.AccountBuilder;
 import model.builder.ClientBuilder;
-import org.w3c.dom.Text;
+import model.validation.Notification;
+import repository.EntityNotFoundException;
 import service.account.AccountService;
 import service.account.AccountServiceImpl;
 import service.client.ClientService;
@@ -25,7 +24,9 @@ import service.user.UserService;
 import service.user.UserServiceImpl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class EmployeeViewController {
 
@@ -35,6 +36,12 @@ public class EmployeeViewController {
     private ClientService clientService;
     private AccountService accountService;
     private UserService userService;
+
+    @FXML
+    private TextArea tableView;
+
+    @FXML
+    private Button updateAccountButton;
 
     @FXML
     private Button addCustomerButton;
@@ -76,6 +83,7 @@ public class EmployeeViewController {
         primaryStage.setTitle("Bank Application");
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+        getAllClients();
     }
 
     @FXML
@@ -108,17 +116,32 @@ public class EmployeeViewController {
                                 .setAddress(results.getAddress())
                                 .build();
 
-                        clientService.save(client);
-                        userService.addActivity(id, "Added Customer");
+                        Notification<Boolean> notification = clientService.save(client);
+                        if(!notification.getFormattedErrors().isEmpty()){
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Creating Client Failure!");
+                            alert.setContentText(notification.getFormattedErrors());
+                            alert.show();
+                        }else userService.addActivity(id, "Added Customer");
 
                 } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+            getAllClients();
             return null;
         });
     }
 
+    private void getAllClients(){
+        List<Client> clients = clientService.findAll();
+        String s = new String();
+        for (Client c : clients){
+            s = s.concat(c.getId() + " " +c.getName() + " " + c.getPersonalNumericalCode() + " " + c.getIdentityNumber() + " " + c.getAddress() + "\n");
+        }
+        tableView.setText(s);
+    }
 
     @FXML
     public void updateCustomer(){
@@ -141,16 +164,34 @@ public class EmployeeViewController {
                             .setPersonalCodeNumber(Long.parseLong(personalCode.getText()))
                             .build();
 
-                    Client client = clientService.findByPersonalCode(results.getPersonalCode());
-                    client.setName(results.getName());
-                    client.setAddress(results.getAddress());
-                    clientService.update(client);
-                    userService.addActivity(id, "Updated Customer");
+                    Notification<Client> notification = clientService.findByPersonalCode(results.getPersonalCode());
+
+                    if(!notification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Update Client Failure!");
+                        alert.setContentText(notification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        Client client = notification.getResult();
+                        client.setName(results.getName());
+                        client.setAddress(results.getAddress());
+                        Notification<Boolean> notification1 = clientService.update(client);
+                        if (!notification1.getFormattedErrors().isEmpty()){
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Update Client Failure!");
+                            alert.setContentText(notification.getFormattedErrors());
+                            alert.show();
+                        } else
+                            userService.addActivity(id, "Updated Customer");
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            getAllClients();
             return null;
         });
     }
@@ -172,14 +213,24 @@ public class EmployeeViewController {
                             .setPersonalCodeNumber(Long.parseLong(personalCode.getText()))
                             .build();
 
-                    Client client = clientService.findByPersonalCode(results.getPersonalCode());
-                    clientService.remove(client);
-                    userService.addActivity(id, "Deleted Customer");
+                    Notification<Client> notification = clientService.findByPersonalCode(results.getPersonalCode());
 
+                    if(!notification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Remove Client Failure!");
+                        alert.setContentText(notification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        Client client = notification.getResult();
+                        clientService.remove(client);
+                        userService.addActivity(id, "Deleted Customer");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            getAllClients();
             return null;
         });
     }
@@ -208,10 +259,18 @@ public class EmployeeViewController {
                             .setIdentificationNumber(Long.parseLong(accountIdentificationNumber.getText()))
                             .setMoney(Long.parseLong(amountOfMoney.getText()))
                             .build();
-
-                    Account account = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
-                    accountService.payUtilityBill(accountFields.getMoney(), account);
-                    userService.addActivity(id, "Processed Bill");
+                    Notification<Account> findNotification = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
+                    if (!findNotification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Processing Utilities Bill Failure!");
+                        alert.setContentText(findNotification.getFormattedErrors());
+                        alert.show();
+                    }
+                    else {
+                        accountService.payUtilityBill(accountFields.getMoney(), findNotification.getResult());
+                        userService.addActivity(id, "Processed Bill");
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -250,18 +309,35 @@ public class EmployeeViewController {
                             .setType(type)
                             .build();
 
-                    Client client = clientService.findByPersonalCode(accountFields.getClientId());
+                    Notification<Client> clientNotification = clientService.findByPersonalCode(accountFields.getClientId());
+                    if(!clientNotification.getFormattedErrors().isEmpty()) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Remove Client Failure!");
+                        alert.setContentText(clientNotification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        Client client = clientNotification.getResult();
 
-                    Account account = new AccountBuilder()
-                            .setDateOfCreation(new Date())
-                            .setClientId(client.getId())
-                            .setType(accountFields.getType())
-                            .setIdentificationNumber(accountFields.getIdentificationNumber())
-                            .setAmountOfMoney(accountFields.getMoney())
-                            .build();
+                        Account account = new AccountBuilder()
+                                .setDateOfCreation(new Date())
+                                .setClientId(client.getId())
+                                .setType(accountFields.getType())
+                                .setIdentificationNumber(accountFields.getIdentificationNumber())
+                                .setAmountOfMoney(accountFields.getMoney())
+                                .build();
 
-                    accountService.save(account);
-                    userService.addActivity(id, "Created Account");
+                        Notification<Boolean> notification = accountService.save(account);
+                        if (!notification.getFormattedErrors().isEmpty()){
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Creating Account Failure!");
+                            alert.setContentText(notification.getFormattedErrors());
+                            alert.show();
+                        } else {
+                            userService.addActivity(id, "Created Account");
+                        }
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -272,6 +348,51 @@ public class EmployeeViewController {
 
     }
 
+    @FXML
+    public void updateAccount(){
+        Dialog<ClientFields> dialog = new Dialog<>();
+        dialog.setTitle("Update Account");
+        dialog.setHeaderText("Please fill the following fields");
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        TextField accountIdentificationNumber = new TextField("Identification Number");
+        TextField money = new TextField("Money");
+        dialogPane.setContent(new VBox(8, accountIdentificationNumber, money));
+        dialog.show();
+        dialog.setResultConverter((ButtonType button) -> {
+            if (button == ButtonType.OK) {
+                try {
+                    AccountFields accountFields = new AccountFieldsBuilder()
+                            .setIdentificationNumber(Long.parseLong(accountIdentificationNumber.getText()))
+                            .setMoney(Long.parseLong(money.getText()))
+                            .build();
+                    Notification<Account> findNotification = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
+                    if (!findNotification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Invalid Identification Number");
+                        alert.setContentText(findNotification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        Account account= findNotification.getResult();
+                        Notification<Boolean> updateNotification = accountService.update(account);
+                        if(updateNotification.getFormattedErrors().isEmpty())
+                            userService.addActivity(id, "Updated Account");
+                        else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Invalid Money Ammount");
+                            alert.setContentText(findNotification.getFormattedErrors());
+                            alert.show();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        });
+    }
 
     @FXML
     public void deleteAccount(){
@@ -290,10 +411,18 @@ public class EmployeeViewController {
                             .setIdentificationNumber(Long.parseLong(accountIdentificationNumber.getText()))
                             .build();
 
-                    Account account = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
-                    accountService.removeAccount(account);
-                    userService.addActivity(id, "Deleted Account");
-
+                    Notification<Account> findNotification = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
+                    if (!findNotification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Invalid Identification Number");
+                        alert.setContentText(findNotification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        Account account= findNotification.getResult();
+                        accountService.removeAccount(account);
+                        userService.addActivity(id, "Deleted Account");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -323,11 +452,24 @@ public class EmployeeViewController {
                             .setMoney(Long.parseLong(money.getText()))
                             .build();
 
-                    Account account = accountService.findByIdentificationNumber(accountFields.getIdentificationNumber());
-                    accountService.removeAccount(account);
-                    userService.addActivity(id, "Transferred money");
-
-                } catch (Exception e) {
+                    Notification<Boolean> transferNotification = accountService.transferMoney(
+                            accountFields.getIdentificationNumber()
+                            ,accountFields.getSecondIdentificationNumber()
+                            ,accountFields.getMoney());
+                    if (!transferNotification.getFormattedErrors().isEmpty()){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Invalid Identification Number");
+                        alert.setContentText(transferNotification.getFormattedErrors());
+                        alert.show();
+                    } else {
+                        accountService.transferMoney(
+                                accountFields.getIdentificationNumber()
+                                ,accountFields.getSecondIdentificationNumber()
+                                ,accountFields.getMoney());
+                        userService.addActivity(id, "Transferred money");
+                    }
+                } catch (EntityNotFoundException e) {
                     e.printStackTrace();
                 }
             }

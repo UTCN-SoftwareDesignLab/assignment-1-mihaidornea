@@ -1,9 +1,11 @@
 package repository.user;
 
+import model.Report;
 import model.User;
 import model.validation.Notification;
 
 import javax.naming.AuthenticationException;
+import java.sql.Date;
 import java.util.List;
 
 public interface UserRepository {
@@ -16,14 +18,18 @@ public interface UserRepository {
 
     boolean update(User user);
 
-    User findById(Long id);
+    Notification<User> findById(Long id);
 
-    User findByUsername(String username);
+    Notification<User> findByUsername(String username);
 
     void addActivity(Long id, String activity);
 
     void removeUser(User user);
 
     void removeAll();
+
+    void removeAllActivities();
+
+    Report getActivities(Long id, Date date);
 
 }

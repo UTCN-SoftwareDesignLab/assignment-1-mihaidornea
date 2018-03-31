@@ -2,6 +2,9 @@ package service.account;
 
 import model.Account;
 import model.User;
+import model.builder.AccountBuilder;
+import model.validation.AccountValidator;
+import model.validation.Notification;
 import repository.EntityNotFoundException;
 import repository.account.AccountRepository;
 
@@ -21,13 +24,37 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Account findById(Long id) throws EntityNotFoundException {
+    public Notification<Account> findById(Long id) throws EntityNotFoundException {
         return repository.findById(id);
     }
 
     @Override
-    public boolean save(Account account) {
-        return repository.save(account);
+    public Notification<Boolean> update(Account account) {
+        Notification<Boolean> notification = new Notification<>();
+        AccountValidator accountValidator = new AccountValidator(account);
+        boolean goodAccount = accountValidator.validate();
+        if (!goodAccount){
+            accountValidator.getErrors().forEach(notification::addError);
+            notification.setResult(Boolean.FALSE);
+        } else {
+            notification.setResult(repository.update(account));
+        }
+       return notification;
+
+    }
+
+    @Override
+    public Notification<Boolean> save(Account account) {
+        AccountValidator accountValidator = new AccountValidator(account);
+        boolean goodAccount = accountValidator.validate();
+        Notification<Boolean> notification = new Notification<>();
+        if (!goodAccount){
+            accountValidator.getErrors().forEach(notification::addError);
+            notification.setResult(Boolean.FALSE);
+        } else {
+            notification.setResult(repository.save(account));
+        }
+        return notification;
     }
 
     @Override
@@ -36,18 +63,49 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public boolean transferMoney(Long accountId1, Long accountId2, Long moneyAmount) throws EntityNotFoundException {
-        Account account1 = repository.findById(accountId1);
-        Account account2 = repository.findById(accountId2);
+    public Notification<Boolean> transferMoney(Long accountId1, Long accountId2, Long moneyAmount) throws EntityNotFoundException {
+        Notification<Account> notification1 = new Notification<>();
+        Notification<Account> notification2 = new Notification<>();
+        Notification<Boolean> returnNotification = new Notification<>();
+
+        notification1 = repository.findByIdentificationNumber(accountId1);
+        notification2 = repository.findByIdentificationNumber(accountId2);
+
+        Account account1;
+        Account account2;
+
+        if (!notification1.hasErrors())
+            account1 = repository.findByIdentificationNumber(accountId1).getResult();
+        else {
+            returnNotification.setResult(Boolean.FALSE);
+            returnNotification.addError("First ID is Invalid");
+            return returnNotification;
+        }
+
+        if (!notification2.hasErrors())
+            account2 = repository.findByIdentificationNumber(accountId2).getResult();
+        else {
+            returnNotification.setResult(Boolean.FALSE);
+            returnNotification.addError("Second ID is Invalid");
+            return returnNotification;
+        }
 
         account1.setAmountOfMoney(account1.getAmountOfMoney()-moneyAmount);
         account2.setAmountOfMoney(account2.getAmountOfMoney()+moneyAmount);
 
-        return repository.update(account1)&&repository.update(account2);
+        if(repository.update(account1)&&repository.update(account2)){
+            returnNotification.setResult(Boolean.TRUE);
+            return returnNotification;
+        }
+        else {
+            returnNotification.setResult(Boolean.FALSE);
+            returnNotification.addError("Failed to update the accounts");
+            return returnNotification;
+        }
     }
 
     @Override
-    public Account findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException{
+    public Notification<Account> findByIdentificationNumber(Long identificationNumber) throws EntityNotFoundException{
         return repository.findByIdentificationNumber(identificationNumber);
     }
 

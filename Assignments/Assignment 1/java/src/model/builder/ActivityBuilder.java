@@ -2,7 +2,7 @@ package model.builder;
 
 import model.Activity;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class ActivityBuilder {
 

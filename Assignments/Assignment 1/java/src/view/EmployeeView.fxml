@@ -8,13 +8,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" minWidth="900">
     <center>
         <HBox>
             <padding>
                 <Insets left="10" right="10"/>
             </padding>
-            <TableView fx:id="tableView"/>
+            <TextArea fx:id="tableView" editable="false" minWidth="100"/>
         </HBox>
     </center>
     <left>
@@ -27,6 +27,7 @@
             <Button text="Delete Customer" fx:id="deleteCustomerButton" alignment="CENTER" onAction="#deleteCustomer"/>
             <Button text="Find Customer" fx:id="findCustomerButton" alignment="CENTER" onAction="#findCustomer"/>
             <Button text="Process Utilities" fx:id="processUtilitiesButton" alignment="CENTER" onAction="#processUtilities"/>
+            <Button text="Update Account" fx:id="updateAccountButton" alignment="CENTER" onAction="#updateAccount"/>
             <Button text="Create Account" fx:id="createAccountButton" alignment="CENTER" onAction="#createAccount"/>
             <Button text="Delete Account" fx:id="deleteAccountButton" alignment="CENTER" onAction="#deleteAccount"/>
             <Button text="Transfer Money" fx:id="transferMoneyButton" alignment="CENTER" onAction="#transferMoney"/>

@@ -1,12 +1,15 @@
 package service.user;
 
+import model.Report;
 import model.Role;
 import model.User;
 import model.validation.Notification;
+import model.validation.UserValidator;
 import repository.security.RightsRolesRepository;
 import repository.user.UserRepository;
 
 import javax.naming.AuthenticationException;
+import java.sql.Date;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
@@ -24,13 +27,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean save(User user) {
-        return userRepository.save(user);
+    public Notification<Boolean> save(User user) {
+        UserValidator userValidator = new UserValidator(user);
+        boolean goodUser = userValidator.validate();
+        Notification<Boolean> notification = new Notification<>();
+        if (!goodUser){
+            userValidator.getErrors().forEach(notification::addError);
+            notification.setResult(Boolean.FALSE);
+        } else {
+            notification.setResult(userRepository.save(user));
+        }
+        return notification;
     }
 
     @Override
-    public boolean update(User user) {
-        return userRepository.update(user);
+    public Notification<Boolean> update(User user) {
+        UserValidator userValidator = new UserValidator(user);
+        boolean goodUser = userValidator.validate();
+        Notification<Boolean> notification = new Notification<>();
+        if (!goodUser){
+            userValidator.getErrors().forEach(notification::addError);
+            notification.setResult(Boolean.FALSE);
+        } else {
+            notification.setResult(userRepository.update(user));
+        }
+        return notification;
     }
 
     @Override
@@ -39,12 +60,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id){
+    public Notification<User> findById(Long id){
        return userRepository.findById(id);
     }
 
     @Override
-    public User findByUsername(String username) {
+    public Notification<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
@@ -61,5 +82,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Role findRoleByName(String name){
         return rightsRolesRepository.findRoleByTitle(name);
+    }
+
+    @Override
+    public Report getActivities(Long id, Date date) {
+        return userRepository.getActivities(id, date);
     }
 }

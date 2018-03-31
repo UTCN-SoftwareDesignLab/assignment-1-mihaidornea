@@ -14,7 +14,7 @@
             <padding>
                 <Insets right="10" left="10"/>
             </padding>
-            <TableView fx:id="administratorTableView"/>
+            <TextArea fx:id="administratorTableView" editable="false"/>
         </VBox>
     </center>
     <right>

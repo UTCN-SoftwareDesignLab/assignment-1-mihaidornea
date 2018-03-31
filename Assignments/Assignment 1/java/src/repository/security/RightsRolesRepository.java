@@ -24,4 +24,7 @@ public interface RightsRolesRepository {
 
     void addRoleRight(Long roleId, Long rightId);
 
+    void removeAll();
+
+    void removeAllRights();
 }

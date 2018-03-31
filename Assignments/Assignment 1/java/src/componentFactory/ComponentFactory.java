@@ -1,6 +1,7 @@
 package componentFactory;
 
 import database.DBConnectionFactory;
+import database.SQLTableCreationFactory;
 import repository.account.AccountRepository;
 import repository.account.AccountRepositoryMySQL;
 import repository.client.ClientRepository;
@@ -16,6 +17,10 @@ import service.user.AuthenticationServiceMySQL;
 
 import java.awt.desktop.UserSessionEvent;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import static database.Constants.Tables.ORDERED_TABLES_FOR_CREATION;
 
 public class ComponentFactory {
 
@@ -37,6 +42,16 @@ public class ComponentFactory {
 
     private ComponentFactory() {
         Connection connection = new DBConnectionFactory().getConnectionWrapper().getConnection();
+        /*SQLTableCreationFactory sqlTableCreationFactory = new SQLTableCreationFactory();
+        for(String s : ORDERED_TABLES_FOR_CREATION){
+            try {
+                String sql = sqlTableCreationFactory.getCreateSQLForTable(s);
+                Statement statement = connection.createStatement();
+                statement.executeUpdate(sql);
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        }*/
         this.clientRepository = new ClientRepositoryMySQL(connection);
         this.rightsRolesRepository = new RightsRolesRepositoryMySQL(connection);
         this.userRepository = new UserRepositoryMySQL(connection, rightsRolesRepository);
