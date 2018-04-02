@@ -143,6 +143,16 @@ public class EmployeeViewController {
         tableView.setText(s);
     }
 
+    public void getAllAccounts(){
+        List<Account> accounts = accountService.findAll();
+        String s = new String();
+        s= s.concat("ID " + "IdNum" + " Type" + " Money " + "Date " + "client_id" + "\n");
+        for ( Account a: accounts) {
+            s= s.concat(a.getId() + " " + a.getIdentificationNumber() + " " + a.getType() + " " + a.getAmountOfMoney() + " " + a.getDateOfCreation() + " " + a.getClient_id() + "\n");
+        }
+        tableView.setText(s);
+    }
+
     @FXML
     public void updateCustomer(){
         Dialog<ClientFields> dialog = new Dialog<>();
@@ -313,7 +323,7 @@ public class EmployeeViewController {
                     if(!clientNotification.getFormattedErrors().isEmpty()) {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
-                        alert.setHeaderText("Remove Client Failure!");
+                        alert.setHeaderText("Find Client Failure!");
                         alert.setContentText(clientNotification.getFormattedErrors());
                         alert.show();
                     } else {
@@ -343,6 +353,7 @@ public class EmployeeViewController {
                     e.printStackTrace();
                 }
             }
+            getAllAccounts();
             return null;
         });
 
@@ -390,6 +401,7 @@ public class EmployeeViewController {
                     e.printStackTrace();
                 }
             }
+            getAllAccounts();
             return null;
         });
     }
@@ -427,6 +439,7 @@ public class EmployeeViewController {
                     e.printStackTrace();
                 }
             }
+            getAllAccounts();
             return null;
         });
     }
@@ -473,6 +486,7 @@ public class EmployeeViewController {
                     e.printStackTrace();
                 }
             }
+            getAllAccounts();
             return null;
         });
     }

@@ -35,6 +35,7 @@ public class ClientServiceImpl implements ClientService{
         ClientValidator userValidator = new ClientValidator(client);
         boolean goodClient = userValidator.validate();
         Notification<Boolean> notification = new Notification<>();
+        System.out.println(goodClient);
         if (!goodClient) {
             userValidator.getErrors().forEach(notification::addError);
             notification.setResult(Boolean.FALSE);

@@ -21,7 +21,7 @@ public class AuthenticationServiceMySQL implements AuthenticationService{
 
     @Override
     public Notification<User> login(String username, String password) throws AuthenticationException {
-        return userRepository.findByUsernameAndPassword(username, encodePassword(password));
+        return userRepository.findByUsernameAndPassword(username, password);
     }
 
 
@@ -33,33 +33,15 @@ public class AuthenticationServiceMySQL implements AuthenticationService{
 
     @Override
     public Role getUserRole(String username, String password) throws AuthenticationException{
-        User user = userRepository.findByUsernameAndPassword(username, encodePassword(password)).getResult();
+        User user = userRepository.findByUsernameAndPassword(username,password).getResult();
         Role role = user.getRoles().get(0);
         return role;
     }
 
     @Override
     public Long getUserId(String username, String password) throws AuthenticationException {
-        User user = userRepository.findByUsernameAndPassword(username, encodePassword(password)).getResult();
+        User user = userRepository.findByUsernameAndPassword(username,password).getResult();
         return user.getId();
-    }
-
-    private String encodePassword(String password){
-     try{
-         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-         byte[] hash = digest.digest(password.getBytes("UTF-8"));
-         StringBuilder hexString = new StringBuilder();
-
-        for(int i = 0; i < hash.length; i++){
-             String hex = Integer.toHexString(0xff & hash[i]);
-             if (hex.length() == 1) hexString.append('0');
-             hexString.append(hex);
-         }
-
-         return hexString.toString();
-     } catch (Exception ex){
-         throw new RuntimeException(ex);
-     }
     }
 
 }
