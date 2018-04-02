@@ -41,7 +41,7 @@ public class ComponentFactory {
     }
 
     private ComponentFactory() {
-        Connection connection = new DBConnectionFactory().getConnectionWrapper().getConnection();
+        Connection connection = new DBConnectionFactory().getConnectionWrapper(false).getConnection();
         /*SQLTableCreationFactory sqlTableCreationFactory = new SQLTableCreationFactory();
         for(String s : ORDERED_TABLES_FOR_CREATION){
             try {

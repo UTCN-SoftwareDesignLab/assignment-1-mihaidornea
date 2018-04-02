@@ -33,7 +33,7 @@ public class AccountRepositoryMySQLTest {
 
     @BeforeClass
     public static void setUp(){
-        connection = new DBConnectionFactory().getConnectionWrapper().getConnection();
+        connection = new DBConnectionFactory().getConnectionWrapper(true).getConnection();
         clientRepository = new ClientRepositoryMySQL(connection);
         accountRepository = new AccountRepositoryMySQL(connection);
     }

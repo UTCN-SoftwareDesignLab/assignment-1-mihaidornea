@@ -23,7 +23,7 @@ public class ClientRepositoryMySQLTest {
 
     @BeforeClass
     public static void setUp(){
-        connection = new DBConnectionFactory().getConnectionWrapper().getConnection();
+        connection = new DBConnectionFactory().getConnectionWrapper(true).getConnection();
         clientRepository = new ClientRepositoryMySQL(connection);
     }
 
